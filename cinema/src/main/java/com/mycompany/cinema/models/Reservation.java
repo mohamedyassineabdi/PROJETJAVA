@@ -10,13 +10,14 @@ public class Reservation {
     private int nbPlaces; // 🔴 AJOUT OBLIGATOIRE
     private Timestamp dateReservation;
 
-    public Reservation(int idClient, int idSeance, int nbPlaces, String statut) {
-        this.idClient = idClient;
-        this.idSeance = idSeance;
-        this.nbPlaces = nbPlaces;
-        this.statut = statut;
-    }
-
+    public Reservation(int idReservation, int idClient, int idSeance, int nbPlaces, String statut, Timestamp dateReservation) {
+    this.idReservation = idReservation;
+    this.idClient = idClient;
+    this.idSeance = idSeance;
+    this.nbPlaces = nbPlaces;
+    this.statut = statut;
+    this.dateReservation = dateReservation;
+}
    public Reservation(int idReservation, int idClient, int idSeance, String statut, Timestamp dateReservation) {
     this.idReservation = idReservation;
     this.idClient = idClient;

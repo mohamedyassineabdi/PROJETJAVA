@@ -12,7 +12,7 @@ public class GestionClientsFrame extends JFrame {
 
     public GestionClientsFrame() {
         setTitle("Gestion des Clients");
-        setSize(700, 400);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         initUI();
@@ -20,54 +20,56 @@ public class GestionClientsFrame extends JFrame {
     }
 
     private void initUI() {
-        JPanel panel = new JPanel(new BorderLayout());
+        ImageIcon icon = new ImageIcon(getClass().getResource("background_cinema.png"));
+        Image img = icon.getImage();
+        BackgroundPanel bgPanel = new BackgroundPanel(img);
+        setContentPane(bgPanel);
+        bgPanel.setLayout(null);
 
-        // Table
         model = new DefaultTableModel(new String[]{"ID", "Nom", "Prénom", "Email", "Mot de passe"}, 0);
         tableClients = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(tableClients);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setBounds(50, 150, 700, 250);
+        bgPanel.add(scrollPane);
 
-        // Boutons
-        JPanel panelBoutons = new JPanel();
         JButton btnAjouter = new JButton("Ajouter Client");
         JButton btnModifier = new JButton("Modifier Client");
         JButton btnSupprimer = new JButton("Supprimer Client");
         JButton btnRetour = new JButton("Retour à l'accueil");
-        
 
-        panelBoutons.add(btnAjouter);
+        styliserBouton(btnAjouter);
+        styliserBouton(btnModifier);
+        styliserBouton(btnSupprimer);
+        styliserBoutonBlanc(btnRetour);
 
-        panelBoutons.add(btnModifier);
+        btnAjouter.setBounds(80, 420, 160, 40);
+        btnModifier.setBounds(250, 420, 160, 40);
+        btnSupprimer.setBounds(420, 420, 160, 40);
+        btnRetour.setBounds(590, 420, 160, 40);
 
-        panelBoutons.add(btnSupprimer);
-        panelBoutons.add(btnRetour);
-        panel.add(panelBoutons, BorderLayout.SOUTH);
+        bgPanel.add(btnAjouter);
+        bgPanel.add(btnModifier);
+        bgPanel.add(btnSupprimer);
+        bgPanel.add(btnRetour);
 
-        add(panel);
-        
-        btnAjouter.addActionListener(e -> {
-    new AjouterClientFrame(this::chargerClientsDepuisBD).setVisible(true);
-});
+        btnAjouter.addActionListener(e -> new AjouterClientFrame(this::chargerClientsDepuisBD).setVisible(true));
 
         btnModifier.addActionListener(e -> {
-    int selectedRow = tableClients.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Veuillez sélectionner un client à modifier.");
-        return;
-    }
+            int selectedRow = tableClients.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Veuillez sélectionner un client à modifier.");
+                return;
+            }
 
-    int id = (int) model.getValueAt(selectedRow, 0);
-    String nom = (String) model.getValueAt(selectedRow, 1);
-    String prenom = (String) model.getValueAt(selectedRow, 2);
-    String email = (String) model.getValueAt(selectedRow, 3);
-    String mdp = (String) model.getValueAt(selectedRow, 4);
+            int id = (int) model.getValueAt(selectedRow, 0);
+            String nom = (String) model.getValueAt(selectedRow, 1);
+            String prenom = (String) model.getValueAt(selectedRow, 2);
+            String email = (String) model.getValueAt(selectedRow, 3);
+            String mdp = (String) model.getValueAt(selectedRow, 4);
 
-    new ModifierClientFrame(id, nom, prenom, email, mdp, this::chargerClientsDepuisBD).setVisible(true);
-});
+            new ModifierClientFrame(id, nom, prenom, email, mdp, this::chargerClientsDepuisBD).setVisible(true);
+        });
 
-
-        // Action : Supprimer
         btnSupprimer.addActionListener(e -> {
             int selectedRow = tableClients.getSelectedRow();
             if (selectedRow == -1) {
@@ -76,7 +78,6 @@ public class GestionClientsFrame extends JFrame {
             }
 
             int idClient = (int) model.getValueAt(selectedRow, 0);
-
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Confirmer la suppression du client ?", "Confirmation",
                     JOptionPane.YES_NO_OPTION);
@@ -89,7 +90,7 @@ public class GestionClientsFrame extends JFrame {
                     ps.executeUpdate();
                     conn.close();
 
-                    chargerClientsDepuisBD(); // Refresh
+                    chargerClientsDepuisBD();
                     JOptionPane.showMessageDialog(this, "Client supprimé avec succès.");
                 } catch (SQLException ex) {
                     ex.printStackTrace();
@@ -98,11 +99,26 @@ public class GestionClientsFrame extends JFrame {
             }
         });
 
-        // Action : Retour à l'accueil
         btnRetour.addActionListener(e -> {
-            new AcceuilAdmin().setVisible(true); // remplace si le nom est différent
+            new AcceuilAdmin().setVisible(true);
             dispose();
         });
+    }
+
+    private void styliserBouton(JButton btn) {
+        btn.setBackground(new Color(180, 0, 0));
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+
+    private void styliserBoutonBlanc(JButton btn) {
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(Color.DARK_GRAY);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
     }
 
     private void chargerClientsDepuisBD() {

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.cinema.dao;
 
 import com.mycompany.cinema.models.Film;
@@ -19,7 +15,7 @@ public class FilmDAO {
         String sql = "SELECT * FROM films";
 
         try (Connection conn = Database.getConnection();
-                Statement stmt = conn.createStatement();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -41,7 +37,7 @@ public class FilmDAO {
 
     // 2. Insérer un nouveau film
     public boolean insertFilm(Film film) {
-        String sql = "INSERT INTO films (titre, genre, duree, description VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO films (titre, genre, duree, description) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -77,7 +73,7 @@ public class FilmDAO {
         return false;
     }
 
-    // (Optionnel) - Modifier un film si besoin
+    // 4. Modifier un film
     public boolean updateFilm(Film film) {
         String sql = "UPDATE films SET titre = ?, genre = ?, duree = ?, description = ? WHERE id_film = ?";
 
@@ -98,58 +94,83 @@ public class FilmDAO {
         }
         return false;
     }
-    
+
+    // 5. Rechercher des films par titre
     public List<Film> getFilmsParTitre(String titreRecherche) {
-    List<Film> films = new ArrayList<>();
-    String sql = "SELECT * FROM films WHERE titre LIKE ?";
+        List<Film> films = new ArrayList<>();
+        String sql = "SELECT * FROM films WHERE titre LIKE ?";
 
-    try (Connection conn = Database.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-        
-        stmt.setString(1, "%" + titreRecherche + "%");
-        ResultSet rs = stmt.executeQuery();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        while (rs.next()) {
-            Film film = new Film(
-                rs.getInt("id_film"),
-                rs.getString("titre"),
-                rs.getString("genre"),
-                rs.getInt("duree"),
-                rs.getString("description") // Attention ! description pas resume
-            );
-            films.add(film);
+            stmt.setString(1, "%" + titreRecherche + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Film film = new Film(
+                    rs.getInt("id_film"),
+                    rs.getString("titre"),
+                    rs.getString("genre"),
+                    rs.getInt("duree"),
+                    rs.getString("description")
+                );
+                films.add(film);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return films;
     }
-    return films;
-}
 
+    // 6. Récupérer tous les films triés par une colonne
     public List<Film> getAllFilmsOrderBy(String colonne) {
-    List<Film> films = new ArrayList<>();
-    String sql = "SELECT * FROM films ORDER BY " + colonne + " ASC";
+        List<Film> films = new ArrayList<>();
+        String sql = "SELECT * FROM films ORDER BY " + colonne + " ASC";
 
-    try (Connection conn = Database.getConnection();
-         Statement stmt = conn.createStatement();
-         ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-        while (rs.next()) {
-            Film film = new Film(
-                rs.getInt("id_film"),
-                rs.getString("titre"),
-                rs.getString("genre"),
-                rs.getInt("duree"),
-                rs.getString("description")
-            );
-            films.add(film);
+            while (rs.next()) {
+                Film film = new Film(
+                    rs.getInt("id_film"),
+                    rs.getString("titre"),
+                    rs.getString("genre"),
+                    rs.getInt("duree"),
+                    rs.getString("description")
+                );
+                films.add(film);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return films;
     }
-    return films;
-}
 
-}
+    // 7. Récupérer un film par son ID
+    public Film getFilmParId(int idFilm) {
+        String sql = "SELECT * FROM films WHERE id_film = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            stmt.setInt(1, idFilm);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Film(
+                    rs.getInt("id_film"),
+                    rs.getString("titre"),
+                    rs.getString("genre"),
+                    rs.getInt("duree"),
+                    rs.getString("description")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}

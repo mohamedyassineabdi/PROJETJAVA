@@ -110,5 +110,57 @@ seances.add(new Seance(
             e.printStackTrace();
         }
     }
+
+    public Seance getSeanceById(int idSeance) {
+         Seance seance = null;
+    String sql = """
+        SELECT s.id_seance, s.date_seance, s.heure, s.langue, s.id_film, s.id_salle,
+               s.places_disponibles, sa.nom AS nom_salle
+        FROM seances s
+        JOIN salles sa ON s.id_salle = sa.id_salle
+        WHERE s.id_seance = ?
+    """;
+
+    try (Connection conn = getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, idSeance);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            seance = new Seance(
+                rs.getInt("id_seance"),
+                rs.getString("date_seance"),
+                rs.getString("heure"),
+                rs.getString("langue"),
+                rs.getInt("id_film"),
+                rs.getInt("id_salle"),
+                rs.getInt("places_disponibles"),
+                rs.getString("nom_salle")
+            );
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return seance;
+    }
+    
+    public void incrementerPlaces(int idSeance, int nbPlaces) {
+    String sql = "UPDATE seances SET places_disponibles = places_disponibles + ? WHERE id_seance = ?";
+
+    try (Connection conn = Database.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, nbPlaces);
+        stmt.setInt(2, idSeance);
+        stmt.executeUpdate();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
 }
 

@@ -12,7 +12,7 @@ public class GestionFilmsFrame extends JFrame {
 
     public GestionFilmsFrame() {
         setTitle("Gestion des Films");
-        setSize(700, 400);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         initUI();
@@ -20,34 +20,42 @@ public class GestionFilmsFrame extends JFrame {
     }
 
     private void initUI() {
-        JPanel panel = new JPanel(new BorderLayout());
+        ImageIcon icon = new ImageIcon(getClass().getResource("background_cinema.png"));
+        Image img = icon.getImage();
+        BackgroundPanel bgPanel = new BackgroundPanel(img);
+        setContentPane(bgPanel);
+        bgPanel.setLayout(null);
 
-        // Table avec toutes les colonnes
         model = new DefaultTableModel(new String[]{"ID", "Titre", "Genre", "Durée", "Description"}, 0);
         tableFilms = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(tableFilms);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setBounds(50, 150, 700, 250);
+        bgPanel.add(scrollPane);
 
-        // Boutons
-        JPanel panelBoutons = new JPanel();
         JButton btnAjouter = new JButton("Ajouter Film");
         JButton btnModifier = new JButton("Modifier Film");
         JButton btnSupprimer = new JButton("Supprimer Film");
         JButton btnRetour = new JButton("Retour à l'accueil");
 
-        panelBoutons.add(btnAjouter);
-        panelBoutons.add(btnModifier);
-        panelBoutons.add(btnSupprimer);
-        panelBoutons.add(btnRetour);
-        panel.add(panelBoutons, BorderLayout.SOUTH);
-        add(panel);
+        styliserBouton(btnAjouter);
+        styliserBouton(btnModifier);
+        styliserBouton(btnSupprimer);
+        styliserBoutonBlanc(btnRetour);
 
-        // Action : Ajouter
+        btnAjouter.setBounds(80, 420, 160, 40);
+        btnModifier.setBounds(250, 420, 160, 40);
+        btnSupprimer.setBounds(420, 420, 160, 40);
+        btnRetour.setBounds(590, 420, 160, 40);
+
+        bgPanel.add(btnAjouter);
+        bgPanel.add(btnModifier);
+        bgPanel.add(btnSupprimer);
+        bgPanel.add(btnRetour);
+
         btnAjouter.addActionListener(e -> {
             new AjouterFilmFrame(this::chargerFilmsDepuisBD).setVisible(true);
         });
 
-        // Action : Modifier
         btnModifier.addActionListener(e -> {
             int selectedRow = tableFilms.getSelectedRow();
             if (selectedRow == -1) {
@@ -64,7 +72,6 @@ public class GestionFilmsFrame extends JFrame {
             new ModifierFilmFrame(idFilm, titre, genre, duree, description, this::chargerFilmsDepuisBD).setVisible(true);
         });
 
-        // Action : Supprimer
         btnSupprimer.addActionListener(e -> {
             int selectedRow = tableFilms.getSelectedRow();
             if (selectedRow == -1) {
@@ -86,7 +93,7 @@ public class GestionFilmsFrame extends JFrame {
                     ps.executeUpdate();
                     conn.close();
 
-                    chargerFilmsDepuisBD(); // Mise à jour de la table
+                    chargerFilmsDepuisBD();
                     JOptionPane.showMessageDialog(this, "Film supprimé avec succès.");
                 } catch (SQLException ex) {
                     ex.printStackTrace();
@@ -95,11 +102,26 @@ public class GestionFilmsFrame extends JFrame {
             }
         });
 
-        // Action : Retour à l'accueil
         btnRetour.addActionListener(e -> {
-            new AcceuilAdmin().setVisible(true); // Remplace si ta classe a un nom différent
-            dispose(); // Fermer la fenêtre actuelle
+            new AcceuilAdmin().setVisible(true);
+            dispose();
         });
+    }
+
+    private void styliserBouton(JButton btn) {
+        btn.setBackground(new Color(180, 0, 0));
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+
+    private void styliserBoutonBlanc(JButton btn) {
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(Color.DARK_GRAY);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
     }
 
     private void chargerFilmsDepuisBD() {
@@ -109,7 +131,7 @@ public class GestionFilmsFrame extends JFrame {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM films");
 
-            model.setRowCount(0); // vider la table
+            model.setRowCount(0);
 
             while (rs.next()) {
                 int id = rs.getInt("id_film");

@@ -3,9 +3,12 @@
  */
 
 package com.mycompany.cinema;
-import com.mycompany.cinema.gui.MainFrame;
-import javax.swing.SwingUtilities;
 
+import com.mycompany.cinema.gui.MainFrame2;
+import com.formdev.flatlaf.FlatLightLaf;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
@@ -14,8 +17,17 @@ import javax.swing.SwingUtilities;
 public class Cinema {
 
     public static void main(String[] args) {
+        // Appliquer le thème FlatLaf
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
+        // Lancer l'application Swing
         SwingUtilities.invokeLater(() -> {
-            new MainFrame(); // 👈 Ça ouvre directement ton interface principale
+            MainFrame2 mf = new MainFrame2(); 
+            mf.setVisible(true);
         });
     }
 }
